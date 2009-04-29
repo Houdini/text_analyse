@@ -1,0 +1,14 @@
+#!/bin/bash
+# Author: Dmitrii Golub
+# Date: 06.04.2009
+# Purpose: For normalize russian texts in whole directory
+
+MYSTEM=/home/houdini/lib/mystem
+TARGET=$1
+
+for file in `ls $TARGET -A`
+do
+    echo "working on file $file"
+    TEMP=`cat $TARGET/$file | $MYSTEM -cig`
+    echo $TEMP | iconv -f cp1251 -t utf8 > $TARGET/$file
+done
