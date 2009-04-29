@@ -1,0 +1,19 @@
+gtz_polit:
+    mystem_passed_collection   :   /home/houdini/DataAnalizing/texts/gtz_polit
+    work_files  : /home/houdini/DataAnalizing/texts/data/gtz_polit
+
+week0804:
+    mystem_passed_collection    :   /home/houdini/DataAnalizing/texts/080404week/newsDump
+    work_files  :   /home/houdini/DataAnalizing/texts/data/0804Week
+
+gtz_bus:
+    mystem_passed_collection    :   /home/houdini/DataAnalizing/texts/gtz_bus
+    work_files  :   /home/houdini/DataAnalizing/texts/data/gtz_bus
+
+shevardWeek:
+    mystem_passed_collection    :   /home/houdini/DataAnalizing/texts/shevardWeek/newsDump
+    work_files  :   /home/houdini/DataAnalizing/texts/data/shevardWeek
+
+vyboryWeek:
+    mystem_passed_collection    :   /home/houdini/DataAnalizing/texts/vyboryWeek/newsDump
+    work_files  :   /home/houdini/DataAnalizing/texts/data/vyboryWeek
