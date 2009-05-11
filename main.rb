@@ -6,7 +6,7 @@ require 'collections_set'
 c  = CollectionsSet.new 'config.yml'
 
 
-c.set.each_value {|collection| collection.load_data }
+#c.set.each_value {|collection| collection.load_data }
 
 #do soft idf
 #c.each_value {|collection| collection.idf }
@@ -64,8 +64,16 @@ c.set.each_value {|collection| collection.load_data }
 
 #c.set[:shevardWeek].t_test :A, :N
 #c.set[:shevardWeek].t_test :V, :S
-c.each_collection do |collection|
-  collection.t_test :A, :N
-  collection.t_test :V, :S
-  collection.t_test :N, :PR, :N
-end
+#c.each_collection do |collection|
+#  collection.t_test :A, :N
+#  collection.t_test :V, :S
+#  collection.t_test :N, :PR, :N
+#end
+
+#c.set[:gtz_polit].each_line_documents do |line|
+#  p line
+#end
+
+#c.set[:gtz_bus].svm
+
+c.set[:gtz_bus].svm_exam

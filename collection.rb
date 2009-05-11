@@ -8,6 +8,7 @@ class Collection
   include Ridf
   include Phrase
   include T_test
+  include Svm
 
 	attr_reader :data_files, :documents_amount
 	attr_accessor :data
@@ -73,38 +74,36 @@ class Collection
 
 	def load_data_from_file(file)
 		res = {}
-		IO.readlines(file).each { |line|
+		File.read(file).lines.each { |line|
 			words = line.split
 			second = words.last.to_f
 			second = (second == 0 ? words.last : second)
-
 			res[(words[0...words.size-1]).join(' ').to_sym] = second
 		}
 		res
 	end
 
-  def each_line_documents &block
-    Dir[@data_files[:original_folder]+'/*'].each do |file|
-      IO.readlines(file).each do |line|
-        begin
+  def each_line_documents amount=100, &block
+    all_files = Dir[@data_files[:original_folder]+'/*']
+    all_files.each_with_index do |file, index|
+      File.read(file).lines.each do |line|
         block.call(line)
-        rescue
-        end
       end
+      break if (index.to_f+1)/all_files.size > amount
+      #p "max: #{amount}, index%: #{(index.to_f+1)/all_files.size}"
     end
   end
 
   def each_line_document &block
     file = Dir[@data_files[:original_folder]+'/*'].first
     puts file
-      IO.readlines(file).each do |line|
+      File.read(file).lines.each do |line|
         block.call(line)
       end
   end
 
   def parse_for_word_parts(line)
     result = []
-    begin
     line.scan(/[\w+]+{[\w+]+\??=[\w]/i).each do |token|
       token_result = []
       token.split(/[{\?=]/).each_with_index do |e, i|
@@ -120,8 +119,6 @@ class Collection
           token_result[2] = token_result[2].to_sym
           result << token_result
       end
-    end
-    rescue
     end
     result
   end
