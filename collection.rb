@@ -92,6 +92,7 @@ class Collection
       break if (index.to_f+1)/all_files.size > amount
       #p "max: #{amount}, index%: #{(index.to_f+1)/all_files.size}"
     end
+    all_files
   end
 
   def each_line_document &block

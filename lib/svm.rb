@@ -64,11 +64,17 @@ require 'svm'
     zero_one = []
     signs = []
 
-    self.each_line_documents do |line|
+    all_files = Dir[@data_files[:original_folder]+'/*']
+    all_files.each_with_index do |file, index|
+
       all = []
-      line.split('||').each do |prep|
-        all << prep
+
+      File.read(file).lines.each do |line|
+        line.split('||').each do |prep|
+          all << prep
+        end
       end
+
       for i in (2..all.size-1) do
         next if all[i].length > 3 # if this is real line
         next if all[i].strip.length <1 # if this is null line, specially at the document's end
@@ -80,20 +86,49 @@ require 'svm'
         characteristic << i/2 #preposition number
         characteristic << self.capitalized(preposition) #how many capital words in preposition / number of words
         characteristic << self.titled(preposition, all[1]) #is there is word from title
-
-        signs << characteristic
+        signs << [characteristic, index, i, zero_one.last]#signs, file_number, prep index, real value
       end
     end
 
-    signs.each_with_index do |sign, index|
-      res = m.predict(sign)
-      total += 1
-      #puts "res: #{res}, real: #{zero_one[index]}"
-      errors += 1 if res != zero_one[index]
+    by_file = signs.group_by{|i| i[1] }
+    by_file.keys.each do |file_key|
+      by_file[file_key].each do |prep_signs|
+        prep_signs << m.predict_values_raw(prep_signs[0])[0]
+      end
+      best_in_text = by_file[file_key].sort_by{|i| i.last }
 
+      how_many = 0
+      best_in_text.each do |i|
+        how_many += 1 if i[3]==1.0
+      end
+      result = "#{all_files[file_key].split('/').last} "
+      p "max: #{how_many}"
+      temp = []
+      best_in_text.reverse.each_with_index { |best, index| temp << best[2] if best[3] == 1 }
+      if how_many > temp.size
+        
+      end
+
+      temp.each_with_index do |best, index|
+        break if index >= how_many
+        result += "#{best/2} "
+        p best
+      end
+      `touch svm_result`
+      `echo "#{result}" >> svm_result`
+
+      p result
+      p ''
     end
-    puts "Total:#{total}\n Errors: #{errors}\n Right: #{total - errors} "
-    
+
+#    signs.each_with_index do |sign, index|
+#      res = m.predict(sign)
+#      total += 1
+#      puts "res: #{res}, real: #{zero_one[index]}, predict: #{m.predict_values_raw(sign)}"
+#      errors += 1 if res != zero_one[index]
+#    end
+#    puts "Total:#{total}\n Errors: #{errors}\n Right: #{total - errors} "
+#
   end
 
   def titled(line, title)
