@@ -74,6 +74,20 @@ c  = CollectionsSet.new 'config.yml'
 #  p line
 #end
 
-#c.set[:gtz_bus].svm
 
+#
+#c.set[:gtz_polit].words_per_collection
+#c.set[:gtz_polit].idf!
+#c.set[:gtz_polit].load_data
+#c.set[:gtz_polit].svm
+
+#c.set[:gtz_bus].words_per_collection
+#c.set[:gtz_bus].idf!
+#c.set[:gtz_bus].svm
+c.set[:gtz_bus].load_data
 c.set[:gtz_bus].svm_exam
+
+#c.set[:gtz_bus].words_per_collection
+#c.set[:gtz_bus].load_data
+#c.set[:gtz_bus].words_per_file
+#c.set[:gtz_bus].idf!

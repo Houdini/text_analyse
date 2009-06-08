@@ -6,7 +6,7 @@ class Word
 
 	def initialize(lexem)
 		parts = lexem.split(/[{}]/)
-		@original = parts[0].to_sym
+		@original = parts[0].split(/[(||)]/).last.to_sym
 		raw_variants = []
 		state, start, i = 0, 0, 0
 		parts.last.each_char do |char|
@@ -28,7 +28,6 @@ class Word
 		words.each_with_index do |key, index|
       begin
         words[index][:part_of_speech] = raw_variants[index].split(/[=,]/)[1].to_sym
-        
       rescue
       end
 		end

@@ -9,14 +9,16 @@ class Collection
   include Phrase
   include T_test
   include Svm
+  include Words_per_collection
 
 	attr_reader :data_files, :documents_amount
-	attr_accessor :data
+	attr_accessor :data, :words_per_file
 # base folder where final data
 # orginial where all collection
 	def initialize(base_folder, original_folder)
 		@data_files = detect_data_files(base_folder, original_folder)
 		@data = {}
+    @words_per_file = {}
 		@documents_amount = Dir[original_folder + '/*'].size.to_f
 	end
 
@@ -86,14 +88,85 @@ class Collection
   def each_line_documents amount=100, &block
     all_files = Dir[@data_files[:original_folder]+'/*']
     all_files.each_with_index do |file, index|
+      #p file
       File.read(file).lines.each do |line|
         block.call(line)
       end
       break if (index.to_f+1)/all_files.size > amount
-      #p "max: #{amount}, index%: #{(index.to_f+1)/all_files.size}"
     end
     all_files
   end
+
+  def each_line_documents_with_file amount=100, &block
+    all_files = Dir[@data_files[:original_folder]+'/*']
+    all_files.each_with_index do |file, index|
+      #p file
+      File.read(file).lines.each do |line|
+        block.call(line, file)
+      end
+      break if (index.to_f+1)/all_files.size > amount
+    end
+    all_files
+  end
+
+  def words_per_file
+    res = {}
+    all_files = Dir[@data_files[:original_folder]+'/*']
+    all_files.each_with_index do |file, index|
+      res[file] = []
+
+      File.read(file).lines.each do |line|
+        line.split(/[\s."«»]/i).each do |token|
+          next if token.size < 4
+          res[file] << Word.new(token.split('||').last)
+        end
+      end
+    end
+    @words_per_file = res
+  end
+
+  def word_document_hash
+    @word_document_hash ||=
+      begin
+          res = {}
+          all_files = Dir[@data_files[:original_folder]+'/*']
+          all_files.each_with_index do |file, index|
+            File.read(file).lines.each do |line|
+              line.split(/[\s."«»]/i).each do |token|
+                next if token.size < 4
+                w = Word.new(token.split('||').last)
+
+                res.has_key?(w) ? (
+                  res[w] << file if res[w].include?(file)
+                ) : res[w] = [file]
+
+              end
+            end
+          end
+          res
+      end
+  end
+
+  def get_words_by_file
+    @words_by_file ||=
+      begin
+            res = {}
+            all_files = Dir[@data_files[:original_folder]+'/*']
+            all_files.each_with_index do |file, index|
+              File.read(file).lines.each do |line|
+
+                      line.split(/[\s."«»]/i).each do |token|
+                        next if token.size < 4
+                        w = Word.new(token.split('||').last)
+                        res.has_key?(file) ? res[file] << w : res[file] = [w]
+                      end
+                      
+              end
+            end
+            res
+      end
+  end
+  
 
   def each_line_document &block
     file = Dir[@data_files[:original_folder]+'/*'].first
@@ -123,6 +196,7 @@ class Collection
     end
     result
   end
+
 
   def search_pattern where, *patterns
     raw_array = parse_for_word_parts where
@@ -174,6 +248,26 @@ class Collection
 
   def phrase_sym(name, *types)
     ("#{name}_"+types.join('_')).to_sym
+  end
+
+  def array_has_key hash, key
+    res = false
+    hash.each do |k|
+      if Word.is_same? k, key
+        res = 0 unless res
+        res += 1
+      end
+    end
+    res
+  end
+
+  def hash_has_key hash, key
+    res = false
+    hash.each do |k|
+      break if res
+      res = k if Word.is_same? k, key
+    end
+    res
   end
 
 

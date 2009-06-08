@@ -7,17 +7,30 @@ module Idf
 		self.idf
 	end
 
-  #small value -- more trash
 	def idf
+    p self.data
 		return true unless self.data[:idf].nil?
-
 		puts "IDF: Starting for #{self.data_files[:name]}"
-		idf = {}
-		self.data[:words_per_collection].each_pair do |word, n|
-			idf[word] = Math.log self.documents_amount/n
-		end
+
+    idf_temp = self.word_document_hash
+    idf = {}
+    idf_temp.keys.each do |key|
+      key.words.each{|w| idf[w[:original]] = 0}
+    end
+    idf_temp.keys.each do |key|
+      key.words.each{|w| idf[w[:original]] += 1 }
+    end
+    idf.keys.each do |key|
+      idf[key] = self.documents_amount if idf[key] > self.documents_amount
+    end
+
+    idf.keys.each do |key|
+      idf[key] =idf[key].to_f/self.documents_amount
+    end
+    
 		self.data[:idf] = idf
 		save_hash_to_file idf, :idf
+    p 'end'
 	end
   
 end
